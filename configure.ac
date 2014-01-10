@@ -1,0 +1,13 @@
+AC_INIT([precog], 0.1)
+AM_INIT_AUTOMAKE
+AC_PROG_CC
+AC_CONFIG_MACRO_DIR([m4])
+
+LT_INIT
+
+PKG_CHECK_MODULES(PRECOG, [gobject-2.0 glib-2.0])
+
+AC_OUTPUT([
+Makefile
+src/Makefile
+])

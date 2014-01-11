@@ -11,7 +11,8 @@ AM_CFLAGS =\
 bin_PROGRAMS = precog
 
 precog_SOURCES = \
+	nfqueue.c\
 	precog.c
 
-precog_LDFLAGS = 
+precog_LDFLAGS = -lnetfilter_queue -lnfnetlink
 precog_LDADD = $(PRECOG_LIBS)

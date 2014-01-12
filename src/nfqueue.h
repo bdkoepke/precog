@@ -20,10 +20,11 @@
 #define NFQUEUE_H
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
-#include <glib.h>
+#include <glib/gerror.h>
 
-GQuark NETFILTER_ERROR;
-int NETFILTER_ERROR_INIT;
+#define NETFILTER_ERROR g_quark_from_static_string("NETFILTER_ERROR")
+enum { NETFILTER_ERROR_INIT };
+
 
 /**
  * Netfilter queue callback.

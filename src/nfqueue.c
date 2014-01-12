@@ -1,9 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "nfqueue.h"
 
-#define NETFILTER_ERROR g_quark_from_static_string("NETFILTER_ERROR")
-#define NETFILTER_ERROR_INIT 0
+#include <stdio.h>
+#include <stdlib.h>
 
 struct nfq_handle*
 nfq_handle_new(GError** error)

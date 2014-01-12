@@ -17,19 +17,22 @@
  */
 
 #include "nfqueue.h"
+#include "precog.h"
+#include "net/ip/ip.h"
+#include "net/tcp/tcp.h"
+#include "net/udp/udp.h"
 
 #include <arpa/inet.h>
 #include <assert.h>
 #include <glib.h>
 #include <libnetfilter_queue/libnetfilter_queue_ipv4.h>
 #include <libnetfilter_queue/libnetfilter_queue_tcp.h>
-#include <linux/ip.h>
-#include <linux/netfilter.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <asm/byteorder.h>
 
-static int
+int
 queue_callback(struct nfq_q_handle *queue,
 			   struct nfgenmsg *message,
 			   struct nfq_data *nfa,
@@ -39,63 +42,60 @@ queue_callback(struct nfq_q_handle *queue,
 	if (packet_header == NULL) return -1;
 
 	uint8_t *buffer;
-	nfq_get_payload(nfa, &buffer);
+	const size_t length = nfq_get_payload(nfa, &buffer);
+	size_t offset = 0;
+	int packet_number = ntohl(packet_header->packet_id);
+
+	GError* error = NULL;
+	const ip_header_t* ip_header = ip_header_from(buffer, &offset, length, &error);
+	const ip_protocol_t ip_protocol = ip_header_protocol(ip_header);
+
+	uint16_t sport;
+	uint16_t dport;
+	if (ip_protocol == ip_protocol_tcp)
+	{
+		const tcp_header_t* tcp_header = tcp_header_from(buffer, &offset, length, &error);
+		sport = tcp_header_sport(tcp_header);
+		dport = tcp_header_dport(tcp_header);
+	}
+	else if (ip_protocol == ip_protocol_udp)
+	{
+		const udp_header_t* udp_header = udp_header_from(buffer, &offset, length, &error);
+		sport = udp_header_sport(udp_header);
+		dport = udp_header_dport(udp_header);
+	}
+	else if (ip_protocol == ip_protocol_icmp)
+	{
+		puts("icmp protocol");
+		nfq_set_verdict(queue, packet_number, NF_ACCEPT, 0, NULL);
+		return packet_number;
+	}
+	else
+	{
+		printf("unknown ip_protocol: %d\n", ip_protocol);
+		nfq_set_verdict(queue, packet_number, NF_DROP, 0, NULL);
+		return packet_number;
+	}
+
+	printf("sport: %d, dport: %d\n", sport, dport);
+	uint32_t verdict = (dport == 53 || dport == 80 || dport == 443) ? NF_ACCEPT : NF_DROP;
+	nfq_set_verdict(queue, packet_number, verdict, 0, NULL);
+	return packet_number;
+
+	/*
 	struct iphdr *ip_info = (struct iphdr*) (buffer);
 
 	int id = ntohl(packet_header->packet_id);
 	if (ip_info->protocol == IPPROTO_ICMP &&
-		ip_info->saddr == 0x0800a8c0)
+		ip_info->saddr == 0x4f01a8c0)
 	{
-		printf("icmp drop from %p %d\n",  ip_info->daddr, id);
+		struct in_addr saddr = *((struct in_addr*)&ip_info->saddr);
+		printf("icmp drop from %s %d\n", inet_ntoa(saddr), id);
 		nfq_set_verdict(queue, id, NF_DROP, 0, NULL);
 		return id;
 	}
 	printf("accept %d\n", id);
 	nfq_set_verdict(queue, id, NF_ACCEPT, 0, NULL);
 	return id;
-}
-
-void
-run(queue_callback_t callback, GError** error)
-{
-	if (*error) return;
-	struct nfq_handle *handle = nfq_handle_new(error);
-	if (! *error)
-	{
-		struct nfq_q_handle *queue = nfq_q_handle_new(handle, callback, error);
-		if (! *error)
-		{
-			size_t nfqueue_fd = nfqueue_fd_new(handle, error);
-			if (! *error)
-			{
-				uint8_t buffer[4096];
-				for (;;)
-				{
-					int received = recv(nfqueue_fd, buffer, sizeof (buffer), 0);
-					if (received == -1)
-						break;
-					nfq_handle_packet(handle, (char*)buffer, received);
-				}
-			}
-			nfq_close(handle);
-		}
-		nfq_destroy_queue(queue);
-	}
-
-}
-
-/**
- * @author Brandon Koepke <bdkoepke@gmail.com>
- */
-int
-main(int argc, char** argv)
-{
-	GError* error;
-	run(queue_callback, &error);
-	if (error)
-	{
-		perror(error->message);
-		return (EXIT_FAILURE);
-	}
-	return (EXIT_SUCCESS);
+	 */
 }

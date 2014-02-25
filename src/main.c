@@ -21,49 +21,40 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <glib/gerror.h>
+#include <glib.h>
 
-void
-run(queue_callback_t callback, GError** error)
-{
-	if (*error) return;
-	struct nfq_handle *handle = nfq_handle_new(error);
-	if (! *error)
-	{
-		struct nfq_q_handle *queue = nfq_q_handle_new(handle, callback, error);
-		if (! *error)
-		{
-			size_t nfqueue_fd = nfqueue_fd_new(handle, error);
-			if (! *error)
-			{
-				uint8_t buffer[4096];
-				for (;;)
-				{
-					int received = recv(nfqueue_fd, buffer, sizeof (buffer), 0);
-					if (received == -1)
-						break;
-					nfq_handle_packet(handle, (char*)buffer, received);
-				}
-			nfq_close(handle);
-			}
-		nfq_destroy_queue(queue);
-		}
-	}
-
+void run(queue_callback_t callback, GError **error) {
+  if (*error)
+    return;
+  struct nfq_handle *handle = nfq_handle_new(error);
+  if (!*error) {
+    struct nfq_q_handle *queue = nfq_q_handle_new(handle, callback, error);
+    if (!*error) {
+      size_t nfqueue_fd = nfqueue_fd_new(handle, error);
+      if (!*error) {
+        uint8_t buffer[4096];
+        for (;;) {
+          int received = recv(nfqueue_fd, buffer, sizeof(buffer), 0);
+          if (received == -1)
+            break;
+          nfq_handle_packet(handle, (char *)buffer, received);
+        }
+        nfq_close(handle);
+      }
+      nfq_destroy_queue(queue);
+    }
+  }
 }
 
 /**
  * @author Brandon Koepke <bdkoepke@gmail.com>
  */
-int
-main(int argc, char** argv)
-{
-	GError* error;
-	run(queue_callback, &error);
-	if (error)
-	{
-		perror(error->message);
-		return (EXIT_FAILURE);
-	}
-	return (EXIT_SUCCESS);
+int main(int argc, char **argv) {
+  GError *error;
+  run(queue_callback, &error);
+  if (error) {
+    perror(error->message);
+    return (EXIT_FAILURE);
+  }
+  return (EXIT_SUCCESS);
 }

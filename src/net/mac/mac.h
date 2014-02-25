@@ -17,16 +17,14 @@
  */
 
 #ifndef MAC_H
-#define	MAC_H
+#define MAC_H
 
 #include <stddef.h>
 #include <stdint.h>
 
-typedef uint8_t* macaddr_t;
+typedef uint8_t *macaddr_t;
 const size_t MACADDR_LENGTH;
 
-char*
-macaddr_to_string(const macaddr_t self);
+char *macaddr_to_string(const macaddr_t self);
 
-#endif	/* MAC_H */
-
+#endif /* MAC_H */

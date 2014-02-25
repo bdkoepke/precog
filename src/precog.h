@@ -17,17 +17,13 @@
  */
 
 #ifndef PRECOG_H
-#define	PRECOG_H
+#define PRECOG_H
 
 #include <netinet/ip.h>
 #include <linux/netfilter.h>
 #include <stddef.h>
 
-int
-queue_callback(struct nfq_q_handle *queue,
-			   struct nfgenmsg *message,
-			   struct nfq_data *nfa,
-			   void *user_data);
+int queue_callback(struct nfq_q_handle *queue, struct nfgenmsg *message,
+                   struct nfq_data *nfa, void *user_data);
 
-#endif	/* PRECOG_H */
-
+#endif /* PRECOG_H */

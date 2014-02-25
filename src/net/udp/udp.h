@@ -17,27 +17,23 @@
  */
 
 #ifndef UDP_H
-#define	UDP_H
+#define UDP_H
 
-#include <glib/gerror.h>
+#include <glib.h>
 #include <stdint.h>
 
 #define UDP_ERROR g_quark_from_static_string("udp-error-quark")
-enum { UDP_ERROR_LENGTH };
+enum {
+  UDP_ERROR_LENGTH
+};
 
 typedef struct udp_header udp_header_t;
 
-const udp_header_t*
-udp_header_from(const uint8_t* buffer,
-				size_t* offset,
-				const size_t length,
-				GError** error);
+const udp_header_t *udp_header_from(const uint8_t *buffer, size_t *offset,
+                                    const size_t length, GError **error);
 
-const uint16_t
-udp_header_sport(const udp_header_t* header);
+const uint16_t udp_header_sport(const udp_header_t *header);
 
-const uint16_t
-udp_header_dport(const udp_header_t* header);
+const uint16_t udp_header_dport(const udp_header_t *header);
 
-#endif	/* UDP_H */
-
+#endif /* UDP_H */

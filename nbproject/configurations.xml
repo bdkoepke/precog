@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="90">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name="src">
+        <df name="net">
+          <df name="addr">
+            <in>addr.c</in>
+            <in>addr.h</in>
+          </df>
+          <df name="dns">
+            <in>dns.c</in>
+            <in>dns.h</in>
+          </df>
+          <df name="eth">
+            <in>eth.c</in>
+            <in>eth.h</in>
+          </df>
+          <df name="ip">
+            <in>ip.c</in>
+            <in>ip.h</in>
+          </df>
+          <df name="mac">
+            <in>mac.c</in>
+            <in>mac.h</in>
+          </df>
+          <df name="tcp">
+            <in>tcp.c</in>
+            <in>tcp.h</in>
+          </df>
+          <df name="udp">
+            <in>udp.c</in>
+            <in>udp.h</in>
+          </df>
+        </df>
+        <in>main.c</in>
+        <in>nfqueue.c</in>
+        <in>precog.c</in>
+        <in>precog.h</in>
+      </df>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+      <itemPath>configure</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath></executablePath>
+          <cTool>
+            <incDir>
+              <pElem>src</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            </incDir>
+            <preprocessorList>
+              <Elem>HAVE_DLFCN_H=1</Elem>
+              <Elem>HAVE_INTTYPES_H=1</Elem>
+              <Elem>HAVE_MEMORY_H=1</Elem>
+              <Elem>HAVE_STDINT_H=1</Elem>
+              <Elem>HAVE_STDLIB_H=1</Elem>
+              <Elem>HAVE_STRINGS_H=1</Elem>
+              <Elem>HAVE_STRING_H=1</Elem>
+              <Elem>HAVE_SYS_STAT_H=1</Elem>
+              <Elem>HAVE_SYS_TYPES_H=1</Elem>
+              <Elem>HAVE_UNISTD_H=1</Elem>
+              <Elem>LT_OBJDIR=".libs/"</Elem>
+              <Elem>PACKAGE="precog"</Elem>
+              <Elem>PACKAGE_BUGREPORT=""</Elem>
+              <Elem>PACKAGE_DATA_DIR="/usr/local/share/precog"</Elem>
+              <Elem>PACKAGE_LOCALE_DIR="/usr/local/share/locale"</Elem>
+              <Elem>PACKAGE_NAME="precog"</Elem>
+              <Elem>PACKAGE_SRC_DIR="."</Elem>
+              <Elem>PACKAGE_STRING="precog 0.1"</Elem>
+              <Elem>PACKAGE_TARNAME="precog"</Elem>
+              <Elem>PACKAGE_URL=""</Elem>
+              <Elem>PACKAGE_VERSION="0.1"</Elem>
+              <Elem>STDC_HEADERS=1</Elem>
+              <Elem>VERSION="0.1"</Elem>
+            </preprocessorList>
+          </cTool>
+        </makeTool>
+      </makefileType>
+      <item path="src/main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/addr/addr.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/addr/addr.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/net/dns/dns.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/dns/dns.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/net/eth/eth.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/eth/eth.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/net/ip/ip.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/ip/ip.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/net/mac/mac.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/mac/mac.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/net/tcp/tcp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/tcp/tcp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/net/udp/udp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/net/udp/udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/nfqueue.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="src/precog.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="src/precog.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

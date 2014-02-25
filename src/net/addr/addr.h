@@ -17,14 +17,12 @@
  */
 
 #ifndef ADDR_H
-#define	ADDR_H
+#define ADDR_H
 
 #include <linux/types.h>
 
 typedef __be32 addr_t;
 
-char*
-addr_to_string(addr_t addr);
+char *addr_to_string(addr_t addr);
 
-#endif	/* ADDR_H */
-
+#endif /* ADDR_H */

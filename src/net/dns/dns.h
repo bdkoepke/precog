@@ -17,18 +17,18 @@
  */
 
 #ifndef DNS_H
-#define	DNS_H
+#define DNS_H
+
+#include <glib.h>
 
 #define DNS_ERROR g_quark_from_static_string("dns-error-quark")
-enum { DNS_ERROR_LENGTH };
+enum {
+  DNS_ERROR_LENGTH
+};
 
 typedef struct dns_header dns_header_t;
 
-const dns_header_t*
-dns_header_from(const uint8_t* buffer,
-				size_t* offset,
-				const size_t length,
-				GError** error);
+const dns_header_t *dns_header_from(const uint8_t *buffer, size_t *offset,
+                                    const size_t length, GError **error);
 
-#endif	/* DNS_H */
-
+#endif /* DNS_H */

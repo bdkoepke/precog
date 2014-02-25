@@ -17,28 +17,24 @@
  */
 
 #ifndef TCP_H
-#define	TCP_H
+#define TCP_H
 
-#include <glib/gerror.h>
+#include <glib.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #define TCP_ERROR g_quark_from_static_string("tcp-error-quark")
-enum { TCP_ERROR_LENGTH };
+enum {
+  TCP_ERROR_LENGTH
+};
 
 typedef struct tcp_header tcp_header_t;
 
-const tcp_header_t*
-tcp_header_from(const uint8_t* buffer,
-				size_t* offset,
-				const size_t length,
-				GError** error);
+const tcp_header_t *tcp_header_from(const uint8_t *buffer, size_t *offset,
+                                    const size_t length, GError **error);
 
-const uint16_t
-tcp_header_sport(const tcp_header_t*);
+const uint16_t tcp_header_sport(const tcp_header_t *);
 
-const uint16_t
-tcp_header_dport(const tcp_header_t*);
+const uint16_t tcp_header_dport(const tcp_header_t *);
 
-#endif	/* TCP_H */
-
+#endif /* TCP_H */

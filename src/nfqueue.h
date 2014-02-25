@@ -19,12 +19,14 @@
 #ifndef NFQUEUE_H
 #define NFQUEUE_H
 
+#include <stdint.h>
+#include <glib.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
-#include <glib/gerror.h>
 
 #define NETFILTER_ERROR g_quark_from_static_string("NETFILTER_ERROR")
-enum { NETFILTER_ERROR_INIT };
-
+enum {
+  NETFILTER_ERROR_INIT
+};
 
 /**
  * Netfilter queue callback.
@@ -36,11 +38,9 @@ enum { NETFILTER_ERROR_INIT };
  *             of nfq_create_queue.
  * @return a value of < 0 stops processing.
  */
-typedef int
-(*queue_callback_t)(struct nfq_q_handle *queue,
-	struct nfgenmsg *message,
-	struct nfq_data *nfa,
-	void *user_data);
+typedef int (*queue_callback_t)(struct nfq_q_handle *queue,
+                                struct nfgenmsg *message, struct nfq_data *nfa,
+                                void *user_data);
 
 /**
  * Creates a new nfq queue handle that passes the entire packet.
@@ -50,10 +50,9 @@ typedef int
  * @param error the error handler for this handle.
  * @return a netfilter queue handle.
  */
-struct nfq_q_handle*
-nfq_q_handle_new(struct nfq_handle* handle,
-				 queue_callback_t callback,
-				 GError** error);
+struct nfq_q_handle *nfq_q_handle_new(struct nfq_handle *handle,
+                                      queue_callback_t callback,
+                                      GError **error);
 
 /**
  * Creates a new nfq handle.
@@ -61,8 +60,7 @@ nfq_q_handle_new(struct nfq_handle* handle,
  * @param error the error message.
  * @return the netfilter handle.
  */
-struct nfq_handle*
-nfq_handle_new(GError** error);
+struct nfq_handle *nfq_handle_new(GError **error);
 
 /**
  * Creates a new nfqueue file descriptor.
@@ -71,8 +69,6 @@ nfq_handle_new(GError** error);
  * @param error an error pointer in case of failure.
  * @return the file descriptor or < 0 if error.
  */
-size_t
-nfqueue_fd_new(struct nfq_handle *handle,
-			   GError** error);
+size_t nfqueue_fd_new(struct nfq_handle *handle, GError **error);
 
-#endif  /* NFQUEUE_H */
+#endif /* NFQUEUE_H */

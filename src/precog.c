@@ -32,70 +32,99 @@
 #include <stdlib.h>
 #include <asm/byteorder.h>
 
-int
-queue_callback(struct nfq_q_handle *queue,
-			   struct nfgenmsg *message,
-			   struct nfq_data *nfa,
-			   void *user_data)
-{
-	struct nfqnl_msg_packet_hdr *packet_header = nfq_get_msg_packet_hdr(nfa);
-	if (packet_header == NULL) return -1;
+typedef enum {
+  NF_VERDICT_DROP = NF_DROP,
+  NF_VERDICT_ACCEPT = NF_ACCEPT,
+  NF_VERDICT_STOLEN = NF_STOLEN,
+  NF_VERDICT_QUEUE = NF_QUEUE,
+  NF_VERDICT_REPEAT = NF_REPEAT,
+  NF_VERDICT_STOP = NF_STOP,
+} nf_verdict_t;
 
-	uint8_t *buffer;
-	const size_t length = nfq_get_payload(nfa, &buffer);
-	size_t offset = 0;
-	int packet_number = ntohl(packet_header->packet_id);
+typedef nf_verdict_t (*ip_protocol_verdict_f)(const uint8_t *buffer,
+                                              size_t *offset,
+                                              const size_t length,
+                                              GError **error);
 
-	GError* error = NULL;
-	const ip_header_t* ip_header = ip_header_from(buffer, &offset, length, &error);
-	const ip_protocol_t ip_protocol = ip_header_protocol(ip_header);
+static bool dport_is_accept(uint32_t dport) {
+  switch (dport) {
+  case 53:
+  case 80:
+  case 443:
+  case 8080:
+  case 8081:
+  case 8082:
+  case 8083:
+  case 8084:
+    return true;
+  }
+  return false;
+}
 
-	uint16_t sport;
-	uint16_t dport;
-	if (ip_protocol == ip_protocol_tcp)
-	{
-		const tcp_header_t* tcp_header = tcp_header_from(buffer, &offset, length, &error);
-		sport = tcp_header_sport(tcp_header);
-		dport = tcp_header_dport(tcp_header);
-	}
-	else if (ip_protocol == ip_protocol_udp)
-	{
-		const udp_header_t* udp_header = udp_header_from(buffer, &offset, length, &error);
-		sport = udp_header_sport(udp_header);
-		dport = udp_header_dport(udp_header);
-	}
-	else if (ip_protocol == ip_protocol_icmp)
-	{
-		puts("icmp protocol");
-		nfq_set_verdict(queue, packet_number, NF_ACCEPT, 0, NULL);
-		return packet_number;
-	}
-	else
-	{
-		printf("unknown ip_protocol: %d\n", ip_protocol);
-		nfq_set_verdict(queue, packet_number, NF_DROP, 0, NULL);
-		return packet_number;
-	}
+nf_verdict_t tcp_verdict(const uint8_t *buffer, size_t *offset,
+                         const size_t length, GError **error) {
+  const tcp_header_t *tcp_header =
+      tcp_header_from(buffer, offset, length, error);
+  //uint16_t sport = tcp_header_sport(tcp_header);
+  uint16_t dport = tcp_header_dport(tcp_header);
+  return dport_is_accept(dport) ? NF_VERDICT_ACCEPT : NF_VERDICT_DROP;
+}
 
-	printf("sport: %d, dport: %d\n", sport, dport);
-	uint32_t verdict = (dport == 53 || dport == 80 || dport == 443) ? NF_ACCEPT : NF_DROP;
-	nfq_set_verdict(queue, packet_number, verdict, 0, NULL);
-	return packet_number;
+nf_verdict_t udp_verdict(const uint8_t *buffer, size_t *offset,
+                         const size_t length, GError **error) {
+  /*
+ 	const udp_header_t* udp_header = udp_header_from(buffer, offset, length,
+ error);
+ 	uint16_t sport = udp_header_sport(udp_header);
+ 	uint16_t dport = udp_header_dport(udp_header);
+ 	 */
+  return NF_VERDICT_ACCEPT;
+}
 
-	/*
-	struct iphdr *ip_info = (struct iphdr*) (buffer);
+nf_verdict_t icmp_verdict(const uint8_t *buffer, size_t *offset,
+                          const size_t length, GError **error) {
+  return NF_VERDICT_ACCEPT;
+}
 
-	int id = ntohl(packet_header->packet_id);
-	if (ip_info->protocol == IPPROTO_ICMP &&
-		ip_info->saddr == 0x4f01a8c0)
-	{
-		struct in_addr saddr = *((struct in_addr*)&ip_info->saddr);
-		printf("icmp drop from %s %d\n", inet_ntoa(saddr), id);
-		nfq_set_verdict(queue, id, NF_DROP, 0, NULL);
-		return id;
-	}
-	printf("accept %d\n", id);
-	nfq_set_verdict(queue, id, NF_ACCEPT, 0, NULL);
-	return id;
-	 */
+nf_verdict_t default_verdict(const uint8_t *buffer, size_t *offset,
+                             const size_t length, GError **error) {
+  return NF_VERDICT_ACCEPT;
+}
+
+const ip_protocol_verdict_f
+ip_protocol_get_verdict_func(const ip_protocol_t protocol) {
+  switch (protocol) {
+  case ip_protocol_tcp:
+    return tcp_verdict;
+  case ip_protocol_udp:
+    return udp_verdict;
+  case ip_protocol_icmp:
+    return icmp_verdict;
+  default:
+    return default_verdict;
+  }
+}
+
+int queue_callback(struct nfq_q_handle *queue, struct nfgenmsg *genmessage,
+                   struct nfq_data *nfa, void *user_data) {
+  struct nfqnl_msg_packet_hdr *packet_header = nfq_get_msg_packet_hdr(nfa);
+  if (packet_header == NULL)
+    return -1;
+
+  uint8_t *buffer;
+  const size_t length = nfq_get_payload(nfa, &buffer);
+  size_t offset = 0;
+  int packet_number = ntohl(packet_header->packet_id);
+
+  GError *error = NULL;
+  const ip_header_t *ip_header =
+      ip_header_from(buffer, &offset, length, &error);
+  const ip_protocol_t ip_protocol = ip_header_protocol(ip_header);
+
+  const char *protocol = ip_protocol_to_string(ip_protocol);
+  nf_verdict_t verdict = ip_protocol_get_verdict_func(ip_protocol)(
+      buffer, &offset, length, &error);
+  printf("pkt: %d, proto: %s\n", packet_number, protocol);
+  nfq_set_verdict(queue, packet_number, verdict, 0, NULL);
+  return packet_number;
 }
